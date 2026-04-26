@@ -15,6 +15,9 @@ AIUsageMonitor is a .NET MAUI-based desktop application designed for AI power us
 | :---: | :---: |
 | ![Antigravity Preview](Preview/Preview-Antigravity.png) | ![Codex Preview](Preview/Preview-Codex.png) |
 
+## Download
+👉 Go to Releases and download the latest version.
+
 ## 🚀 Key Features
 
 ### 🏢 Multi-Service Support
