@@ -93,6 +93,9 @@ public partial class MainPage : ContentPage
         set { _isLoginWaiting = value; OnPropertyChanged(); }
     }
 
+    public const string AppVersion = "1.0.0";
+    public string DisplayVersion => $"v{AppVersion}";
+
     private CancellationTokenSource? _loginCts;
 
     // Shared Settings Panel Logic

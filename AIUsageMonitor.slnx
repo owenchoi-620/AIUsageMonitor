@@ -1,3 +1,11 @@
 <Solution>
-  <Project Path="AIUsageMonitor.csproj" />
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="Publish" />
+    <BuildType Name="Release" />
+  </Configurations>
+  <Project Path="AIUsageMonitor.csproj">
+    <Deploy Solution="Publish|*" />
+    <Deploy Solution="Release|*" />
+  </Project>
 </Solution>
