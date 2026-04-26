@@ -3,7 +3,7 @@
 > **Premium AI Usage Monitoring Dashboard**  
 > Effortlessly track your quotas and limits across Antigravity and OpenAI Codex in one sleek, unified interface.
 
-![AIUsageMonitor Header](https://raw.githubusercontent.com/username/repo/main/Resources/Images/app_title.png)
+![AIUsageMonitor Header](Resources/Images/app_title.png)
 
 ## ✨ Overview
 
