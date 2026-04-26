@@ -7,6 +7,12 @@
 
 AIUsageMonitor는 여러 계정과 모델을 관리하는 AI 파워 유저를 위한 .NET MAUI 기반 데스크톱 애플리케이션입니다. 사용량 백분율, 초기화 시간, 크레딧 잔액을 실시간으로 확인하여 중요한 작업 중 예기치 않게 제한에 걸리는 일을 방지합니다.
 
+## 🖼️ 미리보기
+
+| Antigravity (Google) | Codex (OpenAI/GitHub) |
+| :---: | :---: |
+| ![Antigravity Preview](Preview/Preview-Antigravity.png) | ![Codex Preview](Preview/Preview-Codex.png) |
+
 ## 🚀 주요 기능
 
 ### 🏢 멀티 서비스 지원
