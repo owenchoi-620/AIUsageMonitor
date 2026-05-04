@@ -12,6 +12,7 @@
         <ResourceDictionary>
             <Color x:Key="Slate50">#f8fafc</Color>
             <Color x:Key="Slate100">#f1f5f9</Color>
+            <Color x:Key="Slate300">#cbd5e1</Color>
             <Color x:Key="Slate400">#94a3b8</Color>
             <Color x:Key="Slate500">#64748b</Color>
             <Color x:Key="Slate600">#475569</Color>
@@ -23,6 +24,7 @@
             <converters:PercentageColorConverter x:Key="PercentageColorConverter" />
             <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
             <converters:AnonymousAvatarConverter x:Key="AnonymousAvatarConverter" />
+            <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
             
             <Color x:Key="Emerald500">#10b981</Color>
             <Color x:Key="Amber500">#f59e0b</Color>
@@ -163,39 +165,49 @@
                 <VerticalStackLayout Spacing="0" Padding="0,30">
                     <Border Style="{StaticResource TabStyle}" AutomationId="Google">
                         <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnTabClicked" /></Border.GestureRecognizers>
-                        <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
-                            <Label Text="G" FontSize="24" FontAttributes="Bold" TextColor="{Binding IsGoogleTab, Converter={StaticResource PercentageColorConverter}, ConverterParameter={StaticResource Emerald500}}" HorizontalOptions="Center" />
-                            <Label Text="Antigravity" FontSize="9" FontAttributes="Bold" TextColor="{Binding IsGoogleTab, Converter={StaticResource PercentageColorConverter}, ConverterParameter={StaticResource Slate50}}" HorizontalOptions="Center" />
-                            <BoxView HeightRequest="2" WidthRequest="20" BackgroundColor="{StaticResource Emerald500}" IsVisible="{Binding IsGoogleTab}" HorizontalOptions="Center" Margin="0,5,0,0" />
+                        <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                            <Label Text="G" FontSize="20" FontAttributes="Bold" TextColor="{Binding IsGoogleTab, Converter={StaticResource BoolToColorConverter}, ConverterParameter={StaticResource Emerald500}}" HorizontalOptions="Center" />
+                            <Label Text="Antigravity" FontSize="9" FontAttributes="Bold" TextColor="{Binding IsGoogleTab, Converter={StaticResource BoolToColorConverter}, ConverterParameter={StaticResource Slate50}}" HorizontalOptions="Center" />
+                            <BoxView HeightRequest="2" WidthRequest="20" BackgroundColor="{StaticResource Emerald500}" IsVisible="{Binding IsGoogleTab}" HorizontalOptions="Center" Margin="0,3,0,0" />
                         </VerticalStackLayout>
                     </Border>
 
                     <Border Style="{StaticResource TabStyle}" AutomationId="Codex" Margin="0,10,0,0">
                         <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnTabClicked" /></Border.GestureRecognizers>
-                        <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
-                            <Label Text="C" FontSize="24" FontAttributes="Bold" TextColor="{Binding IsCodexTab, Converter={StaticResource PercentageColorConverter}, ConverterParameter={StaticResource Emerald500}}" HorizontalOptions="Center" />
-                            <Label Text="Codex" FontSize="9" FontAttributes="Bold" TextColor="{Binding IsCodexTab, Converter={StaticResource PercentageColorConverter}, ConverterParameter={StaticResource Slate50}}" HorizontalOptions="Center" />
-                            <BoxView HeightRequest="2" WidthRequest="20" BackgroundColor="{StaticResource Emerald500}" IsVisible="{Binding IsCodexTab}" HorizontalOptions="Center" Margin="0,5,0,0" />
+                        <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                            <Label Text="C" FontSize="20" FontAttributes="Bold" TextColor="{Binding IsCodexTab, Converter={StaticResource BoolToColorConverter}, ConverterParameter={StaticResource Emerald500}}" HorizontalOptions="Center" />
+                            <Label Text="Codex" FontSize="9" FontAttributes="Bold" TextColor="{Binding IsCodexTab, Converter={StaticResource BoolToColorConverter}, ConverterParameter={StaticResource Slate50}}" HorizontalOptions="Center" />
+                            <BoxView HeightRequest="2" WidthRequest="20" BackgroundColor="{StaticResource Emerald500}" IsVisible="{Binding IsCodexTab}" HorizontalOptions="Center" Margin="0,3,0,0" />
                         </VerticalStackLayout>
                     </Border>
 
                     <Border Style="{StaticResource TabStyle}" AutomationId="Cursor" Margin="0,10,0,0">
                         <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnTabClicked" /></Border.GestureRecognizers>
-                        <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
-                            <Label Text="R" FontSize="24" FontAttributes="Bold" TextColor="{Binding IsCursorTab, Converter={StaticResource PercentageColorConverter}, ConverterParameter={StaticResource Emerald500}}" HorizontalOptions="Center" />
-                            <Label Text="Cursor" FontSize="9" FontAttributes="Bold" TextColor="{Binding IsCursorTab, Converter={StaticResource PercentageColorConverter}, ConverterParameter={StaticResource Slate50}}" HorizontalOptions="Center" />
-                            <BoxView HeightRequest="2" WidthRequest="20" BackgroundColor="{StaticResource Emerald500}" IsVisible="{Binding IsCursorTab}" HorizontalOptions="Center" Margin="0,5,0,0" />
+                        <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                            <Label Text="R" FontSize="20" FontAttributes="Bold" TextColor="{Binding IsCursorTab, Converter={StaticResource BoolToColorConverter}, ConverterParameter={StaticResource Emerald500}}" HorizontalOptions="Center" />
+                            <Label Text="Cursor" FontSize="9" FontAttributes="Bold" TextColor="{Binding IsCursorTab, Converter={StaticResource BoolToColorConverter}, ConverterParameter={StaticResource Slate50}}" HorizontalOptions="Center" />
+                            <BoxView HeightRequest="2" WidthRequest="20" BackgroundColor="{StaticResource Emerald500}" IsVisible="{Binding IsCursorTab}" HorizontalOptions="Center" Margin="0,3,0,0" />
                         </VerticalStackLayout>
                     </Border>
                 </VerticalStackLayout>
 
                 <VerticalStackLayout Grid.Row="1" Spacing="0" VerticalOptions="End" Margin="0,0,0,10">
+                    <!-- Notifications Button -->
+                    <Border Style="{StaticResource TabStyle}" AutomationId="Notifications" Padding="0,12">
+                        <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnTabClicked" /></Border.GestureRecognizers>
+                        <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                            <Label Text="🔔" FontSize="20" FontAttributes="Bold" TextColor="{Binding IsNotificationsTab, Converter={StaticResource BoolToColorConverter}, ConverterParameter={StaticResource Emerald500}}" HorizontalOptions="Center" />
+                            <Label Text="Notifications" FontSize="9" FontAttributes="Bold" TextColor="{Binding IsNotificationsTab, Converter={StaticResource BoolToColorConverter}, ConverterParameter={StaticResource Slate50}}" HorizontalOptions="Center" />
+                            <BoxView HeightRequest="2" WidthRequest="20" BackgroundColor="{StaticResource Emerald500}" IsVisible="{Binding IsNotificationsTab}" HorizontalOptions="Center" Margin="0,3,0,0" />
+                        </VerticalStackLayout>
+                    </Border>
+
                     <!-- Settings Button -->
                     <Border Style="{StaticResource TabStyle}" AutomationId="Settings" Padding="0,12">
                         <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnTabClicked" /></Border.GestureRecognizers>
                         <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
-                            <Label Text="⚙" FontSize="20" FontAttributes="Bold" TextColor="{Binding IsSettingsTab, Converter={StaticResource PercentageColorConverter}, ConverterParameter={StaticResource Emerald500}}" HorizontalOptions="Center" />
-                            <Label Text="Settings" FontSize="9" FontAttributes="Bold" TextColor="{Binding IsSettingsTab, Converter={StaticResource PercentageColorConverter}, ConverterParameter={StaticResource Slate50}}" HorizontalOptions="Center" />
+                            <Label Text="⚙" FontSize="20" FontAttributes="Bold" TextColor="{Binding IsSettingsTab, Converter={StaticResource BoolToColorConverter}, ConverterParameter={StaticResource Emerald500}}" HorizontalOptions="Center" />
+                            <Label Text="Settings" FontSize="9" FontAttributes="Bold" TextColor="{Binding IsSettingsTab, Converter={StaticResource BoolToColorConverter}, ConverterParameter={StaticResource Slate50}}" HorizontalOptions="Center" />
                             <BoxView HeightRequest="2" WidthRequest="20" BackgroundColor="{StaticResource Emerald500}" IsVisible="{Binding IsSettingsTab}" HorizontalOptions="Center" Margin="0,3,0,0" />
                         </VerticalStackLayout>
                     </Border>
@@ -596,6 +608,215 @@
                             </HorizontalStackLayout>
                         </DataTemplate>
                     </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <!-- NOTIFICATIONS PANEL -->
+            <ScrollView Grid.Row="2" IsVisible="{Binding IsNotificationsTab}" Padding="20">
+                <VerticalStackLayout Spacing="25" MaximumWidthRequest="800" HorizontalOptions="Start">
+                    <!-- Title -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Notifications" FontSize="28" FontAttributes="Bold" TextColor="{StaticResource Slate50}" />
+                        <Label Text="Configure alerts for account resets and usage limits." FontSize="13" TextColor="{StaticResource Slate400}" />
+                    </VerticalStackLayout>
+
+                    <BoxView HeightRequest="1" BackgroundColor="{StaticResource Slate700}" />
+
+                    <!-- Notification Settings -->
+                    <Border BackgroundColor="{StaticResource Slate800}" StrokeShape="RoundRectangle 10" StrokeThickness="1" Stroke="{StaticResource Slate700}" Padding="20">
+                        <VerticalStackLayout Spacing="20">
+                            <!-- Reset Notifications -->
+                            <Grid ColumnDefinitions="*, Auto">
+                                <VerticalStackLayout VerticalOptions="Center">
+                                    <Label Text="Account Reset Alerts" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource Slate50}" />
+                                    <Label Text="Notify when an account's usage is reset to zero." FontSize="12" TextColor="{StaticResource Slate400}" />
+                                </VerticalStackLayout>
+                                <Switch Grid.Column="1" IsToggled="{Binding NotificationSettings.EnableResetNotifications}" OnColor="{StaticResource Emerald500}" VerticalOptions="Center" />
+                            </Grid>
+
+                            <BoxView HeightRequest="1" BackgroundColor="{StaticResource Slate700}" />
+
+                            <!-- Limit Notifications -->
+                            <Grid ColumnDefinitions="*, Auto">
+                                <VerticalStackLayout VerticalOptions="Center">
+                                    <Label Text="Usage Limit Warnings" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource Slate50}" />
+                                    <Label Text="Notify when an account reaches a specific usage threshold." FontSize="12" TextColor="{StaticResource Slate400}" />
+                                </VerticalStackLayout>
+                                <Switch Grid.Column="1" IsToggled="{Binding NotificationSettings.EnableLimitNotifications}" OnColor="{StaticResource Emerald500}" VerticalOptions="Center" />
+                            </Grid>
+
+                            <!-- Threshold Slider -->
+                            <VerticalStackLayout Spacing="8" IsVisible="{Binding NotificationSettings.EnableLimitNotifications}">
+                                <Grid ColumnDefinitions="*, Auto">
+                                    <Label Text="Usage Threshold" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Slate400}" />
+                                    <Label Grid.Column="1" Text="{Binding NotificationSettings.LimitThresholdPercent, StringFormat='{0}%'}" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Emerald500}" />
+                                </Grid>
+                                <Slider Minimum="10" Maximum="100" Value="{Binding NotificationSettings.LimitThresholdPercent}" MinimumTrackColor="{StaticResource Emerald500}" />
+                                <Label Text="You will be notified when any account usage exceeds this percentage." FontSize="11" TextColor="{StaticResource Slate500}" />
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Slack Integration -->
+                    <Label Text="External Integration" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource Slate100}" Margin="0,10,0,0" />
+                    
+                    <Border BackgroundColor="{StaticResource Slate800}" StrokeShape="RoundRectangle 10" StrokeThickness="1" Stroke="{StaticResource Slate700}" Padding="20">
+                        <VerticalStackLayout Spacing="20">
+                            <!-- Slack Switch -->
+                            <Grid ColumnDefinitions="*, Auto">
+                                <VerticalStackLayout VerticalOptions="Center">
+                                    <Label Text="Slack Notifications" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource Slate50}" />
+                                    <Label Text="Send alerts to your Slack channel via Webhook." FontSize="12" TextColor="{StaticResource Slate400}" />
+                                </VerticalStackLayout>
+                                <Switch Grid.Column="1" IsToggled="{Binding NotificationSettings.EnableSlackNotifications}" OnColor="{StaticResource Sky400}" VerticalOptions="Center" />
+                            </Grid>
+
+                            <VerticalStackLayout Spacing="15" IsVisible="{Binding NotificationSettings.EnableSlackNotifications}">
+                                <!-- Mission Guide -->
+                                <Border BackgroundColor="#0f172a" StrokeThickness="1" Stroke="#1e293b" Padding="15" StrokeShape="RoundRectangle 8">
+                                    <VerticalStackLayout Spacing="10">
+                                        <Label Text="🎯 Mission: Get your Webhook URL" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource Sky400}" />
+
+                                        <Label Text="Step 1." FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Slate50}" />
+                                        <Label Text="Open Slack API and create a new App." FontSize="12" TextColor="{StaticResource Slate300}" />
+                                        <Button Text="Open Slack API →" Clicked="OnOpenSlackApiClicked"
+                                                BackgroundColor="{StaticResource Slate700}" TextColor="{StaticResource Sky400}" 
+                                                FontSize="11" FontAttributes="Bold" HeightRequest="30" Padding="14,0" CornerRadius="6"
+                                                HorizontalOptions="Start" />
+
+                                        <Label Text="Step 2." FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Slate50}" Margin="0,5,0,0" />
+                                        <Label Text="Select 'From Scratch' → Name your app → Pick a workspace." FontSize="12" TextColor="{StaticResource Slate300}" />
+
+                                        <Label Text="Step 3." FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Slate50}" Margin="0,5,0,0" />
+                                        <Label Text="In the sidebar, click 'Incoming Webhooks' and toggle it ON." FontSize="12" TextColor="{StaticResource Slate300}" />
+
+                                        <Label Text="Step 4." FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Slate50}" Margin="0,5,0,0" />
+                                        <Label Text="Click 'Add New Webhook to Workspace', select a channel, and copy the generated URL." FontSize="12" TextColor="{StaticResource Slate300}" />
+
+                                        <BoxView HeightRequest="1" BackgroundColor="{StaticResource Slate700}" Margin="0,5" />
+
+                                        <Label Text="ℹ️ How it works" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource Slate400}" />
+                                        <Label Text="When account data is refreshed, a digest of available accounts is sent to your Slack channel. Duplicate messages for the same reset cycle are automatically skipped." FontSize="11" TextColor="{StaticResource Slate500}" LineBreakMode="WordWrap" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <!-- Webhook Input -->
+                                <VerticalStackLayout Spacing="8">
+                                    <Label Text="Webhook URL" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Slate400}" />
+                                    <Border BackgroundColor="{StaticResource Slate900}" StrokeThickness="1" Stroke="{StaticResource Slate700}" Padding="10,2" StrokeShape="RoundRectangle 6">
+                                        <Entry Text="{Binding NotificationSettings.SlackWebhookUrl}" 
+                                               Placeholder="https://hooks.slack.com/services/..." 
+                                               TextColor="{StaticResource Slate50}" 
+                                               FontSize="13" 
+                                               BackgroundColor="Transparent" />
+                                    </Border>
+                                </VerticalStackLayout>
+
+                                <!-- Status & Test -->
+                                <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto">
+                                    <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                        <BoxView WidthRequest="8" HeightRequest="8" 
+                                                 BackgroundColor="{Binding NotificationSettings.SlackStatusColor}" 
+                                                 CornerRadius="4" VerticalOptions="Center" />
+                                        <Label Text="{Binding NotificationSettings.SlackStatus}" 
+                                               FontSize="11" TextColor="{Binding NotificationSettings.SlackStatusColor}" 
+                                               VerticalOptions="Center" />
+                                    </HorizontalStackLayout>
+                                    <Button Grid.Column="1" Text="Send Test" 
+                                            Clicked="OnSlackTestClicked"
+                                            BackgroundColor="{StaticResource Slate700}" 
+                                            TextColor="{StaticResource Sky400}"
+                                            FontSize="11" FontAttributes="Bold"
+                                            HeightRequest="30" Padding="12,0" CornerRadius="6" />
+                                </Grid>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Scheduled Reset Alerts (Bot Token) -->
+                    <Label Text="Scheduled Reset Alerts" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource Slate100}" Margin="0,10,0,0" />
+                    <Label Text="Messages are scheduled on Slack's server — delivered even when this app is closed." FontSize="12" TextColor="{StaticResource Slate400}" />
+
+                    <Border BackgroundColor="{StaticResource Slate800}" StrokeShape="RoundRectangle 10" StrokeThickness="1" Stroke="{StaticResource Slate700}" Padding="20">
+                        <VerticalStackLayout Spacing="20">
+                            <!-- Enable Toggle -->
+                            <Grid ColumnDefinitions="*, Auto">
+                                <VerticalStackLayout VerticalOptions="Center">
+                                    <Label Text="Enable Scheduled Alerts" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource Slate50}" />
+                                    <Label Text="Schedule Slack messages at account reset times." FontSize="12" TextColor="{StaticResource Slate400}" />
+                                </VerticalStackLayout>
+                                <Switch Grid.Column="1" IsToggled="{Binding NotificationSettings.EnableScheduledAlerts}" OnColor="{StaticResource Emerald500}" VerticalOptions="Center" />
+                            </Grid>
+
+                            <VerticalStackLayout Spacing="15" IsVisible="{Binding NotificationSettings.EnableScheduledAlerts}">
+                                <!-- Mission Guide for Bot Token -->
+                                <Border BackgroundColor="#0f172a" StrokeThickness="1" Stroke="#1e293b" Padding="15" StrokeShape="RoundRectangle 8">
+                                    <VerticalStackLayout Spacing="10">
+                                        <Label Text="🔑 Mission: Get Bot Token + Channel ID" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource Emerald500}" />
+
+                                        <Label Text="Step 1." FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Slate50}" />
+                                        <Label Text="Open your Slack App (create one if needed)." FontSize="12" TextColor="{StaticResource Slate300}" />
+                                        <Button Text="Open Slack API →" Clicked="OnOpenSlackApiClicked"
+                                                BackgroundColor="{StaticResource Slate700}" TextColor="{StaticResource Sky400}" 
+                                                FontSize="11" FontAttributes="Bold" HeightRequest="30" Padding="14,0" CornerRadius="6"
+                                                HorizontalOptions="Start" />
+
+                                        <Label Text="Step 2." FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Slate50}" Margin="0,5,0,0" />
+                                        <Label Text="Go to 'OAuth &amp; Permissions' in the sidebar." FontSize="12" TextColor="{StaticResource Slate300}" />
+                                        <Label Text="Add the 'chat:write' scope under Bot Token Scopes." FontSize="12" TextColor="{StaticResource Slate300}" />
+
+                                        <Label Text="Step 3." FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Slate50}" Margin="0,5,0,0" />
+                                        <Label Text="Install (or reinstall) the app to your workspace." FontSize="12" TextColor="{StaticResource Slate300}" />
+                                        <Label Text="Copy the 'Bot User OAuth Token' (xoxb-...)." FontSize="12" TextColor="{StaticResource Slate300}" />
+
+                                        <Label Text="Step 4." FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Slate50}" Margin="0,5,0,0" />
+                                        <Label Text="In Slack, right-click a channel → 'View channel details' → copy the Channel ID from the bottom." FontSize="12" TextColor="{StaticResource Slate300}" LineBreakMode="WordWrap" />
+
+                                        <BoxView HeightRequest="1" BackgroundColor="{StaticResource Slate700}" Margin="0,5" />
+                                        <Label Text="ℹ️ Uses chat.scheduleMessage API — message stays on Slack's server until delivery time." FontSize="11" TextColor="{StaticResource Slate500}" LineBreakMode="WordWrap" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <!-- Bot Token Input -->
+                                <VerticalStackLayout Spacing="8">
+                                    <Label Text="Bot Token" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Slate400}" />
+                                    <Border BackgroundColor="{StaticResource Slate900}" StrokeThickness="1" Stroke="{StaticResource Slate700}" Padding="10,2" StrokeShape="RoundRectangle 6">
+                                        <Entry Text="{Binding NotificationSettings.SlackBotToken}" 
+                                               Placeholder="xoxb-..." IsPassword="True"
+                                               TextColor="{StaticResource Slate50}" FontSize="13" BackgroundColor="Transparent" />
+                                    </Border>
+                                </VerticalStackLayout>
+
+                                <!-- Channel ID Input -->
+                                <VerticalStackLayout Spacing="8">
+                                    <Label Text="Channel ID" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Slate400}" />
+                                    <Border BackgroundColor="{StaticResource Slate900}" StrokeThickness="1" Stroke="{StaticResource Slate700}" Padding="10,2" StrokeShape="RoundRectangle 6">
+                                        <Entry Text="{Binding NotificationSettings.SlackChannelId}" 
+                                               Placeholder="C0XXXXXXXXX"
+                                               TextColor="{StaticResource Slate50}" FontSize="13" BackgroundColor="Transparent" />
+                                    </Border>
+                                </VerticalStackLayout>
+
+                                <!-- Status & Test -->
+                                <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto">
+                                    <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                        <BoxView WidthRequest="8" HeightRequest="8" 
+                                                 BackgroundColor="{Binding NotificationSettings.ScheduledStatusColor}" 
+                                                 CornerRadius="4" VerticalOptions="Center" />
+                                        <Label Text="{Binding NotificationSettings.ScheduledStatus}" 
+                                               FontSize="11" TextColor="{Binding NotificationSettings.ScheduledStatusColor}" 
+                                               VerticalOptions="Center" />
+                                    </HorizontalStackLayout>
+                                    <Button Grid.Column="1" Text="Schedule Test (1 min)" 
+                                            Clicked="OnScheduledTestClicked"
+                                            BackgroundColor="{StaticResource Slate700}" 
+                                            TextColor="{StaticResource Emerald500}"
+                                            FontSize="11" FontAttributes="Bold"
+                                            HeightRequest="30" Padding="12,0" CornerRadius="6" />
+                                </Grid>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
                 </VerticalStackLayout>
             </ScrollView>
 

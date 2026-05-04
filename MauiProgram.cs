@@ -28,6 +28,7 @@ namespace AIUsageMonitor
             builder.Services.AddSingleton<PlatformManager>();
             builder.Services.AddSingleton<ModelCatalogService>();
             builder.Services.AddSingleton<TokenStorageService>();
+            builder.Services.AddSingleton<NotificationService>();
 
 #if DEBUG
     		builder.Logging.AddDebug();

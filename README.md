@@ -44,7 +44,14 @@ Download the latest build from the Releases page.
 - Anonymous mode for screen sharing
 - Antigravity model list controls with default reset and manual update flow
 - Cursor account rename support for local/session-based accounts
-- Tabbed UI for Antigravity, Codex, Cursor, Settings, and About
+- Tabbed UI for Antigravity, Codex, Cursor, Notifications, and Settings
+
+### Intelligent Notifications
+- **System Tray Alerts**: Instant Windows toast notifications for account resets and usage warnings.
+- **Slack Digest (Webhook)**: Instant summary of all available accounts sent to your Slack channel.
+- **Scheduled Alerts (Bot Token)**: Reset alerts are scheduled on Slack's server. **Get notified even when the app is closed.**
+- **Deduplication**: Smart hashing prevents duplicate notifications for the same reset cycle.
+- **Setup Guide**: Built-in mission guide for easy Slack API integration.
 
 ## Requirements
 
@@ -104,7 +111,7 @@ Download the latest build from the Releases page.
 
 ## Notes
 
-- Version: `v1.0.6`
+- Version: `v1.0.7`
 - Windows tray behavior is handled through the platform controller layer.
 - The tray icon is shipped as `trayicon.ico` for more reliable Windows system tray rendering.
 

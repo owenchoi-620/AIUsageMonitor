@@ -37,6 +37,7 @@ public partial class MainPage : ContentPage
     private readonly CursorApiService _cursorApi = new();
     private readonly PlatformManager _platformManager;
     private readonly TokenStorageService _tokenStorage;
+    private readonly NotificationService _notificationService;
     private const double GoogleCardWidth = 240;
     private const double GoogleCardSpacing = 5;
     private const double GoogleLayoutHorizontalPadding = 80;
@@ -88,6 +89,7 @@ public partial class MainPage : ContentPage
             OnPropertyChanged(nameof(IsCursorTab));
             OnPropertyChanged(nameof(IsCodexTab));
             OnPropertyChanged(nameof(IsSettingsTab));
+            OnPropertyChanged(nameof(IsNotificationsTab));
             OnPropertyChanged(nameof(IsAboutTab));
             OnPropertyChanged(nameof(CanAddAccount));
             OnPropertyChanged(nameof(AddAccountButtonText));
@@ -104,6 +106,7 @@ public partial class MainPage : ContentPage
     public bool IsCursorTab => CurrentTab == "Cursor";
     public bool IsCodexTab => CurrentTab == "Codex";
     public bool IsSettingsTab => CurrentTab == "Settings";
+    public bool IsNotificationsTab => CurrentTab == "Notifications";
     public bool IsAboutTab => CurrentTab == "About";
 
     private bool _isAnonymousMode;
@@ -200,6 +203,7 @@ public partial class MainPage : ContentPage
     public string CursorDbStatusMessage => _cursorDbStatusMessage;
     public bool CanAddAccount => !IsCursorTab || IsCursorDbAvailable;
     public string AddAccountButtonText => IsCursorTab ? "+ Add Current Account" : "+ Add Account";
+    public NotificationSettings NotificationSettings => _notificationService.Settings;
     private bool _isCursorDbAvailable;
     private string _cursorDbPath = "Not found";
     private string _cursorDbStatusMessage = "Cursor 설치가 필요합니다.";
@@ -247,6 +251,7 @@ public partial class MainPage : ContentPage
         _platformManager = MauiProgram.Services.GetRequiredService<PlatformManager>();
         _modelCatalogService = MauiProgram.Services.GetRequiredService<ModelCatalogService>();
         _tokenStorage = MauiProgram.Services.GetRequiredService<TokenStorageService>();
+        _notificationService = MauiProgram.Services.GetRequiredService<NotificationService>();
         (_maxGlobalRefreshConcurrency, _maxGoogleRefreshConcurrency, _maxCodexRefreshConcurrency) = CalculateRefreshConcurrency();
         _globalRefreshSemaphore = new SemaphoreSlim(_maxGlobalRefreshConcurrency, _maxGlobalRefreshConcurrency);
         _googleRefreshSemaphore = new SemaphoreSlim(_maxGoogleRefreshConcurrency, _maxGoogleRefreshConcurrency);
@@ -255,6 +260,7 @@ public partial class MainPage : ContentPage
         Debug.WriteLine($"Refresh queue initialized. Global={_maxGlobalRefreshConcurrency}, Google={_maxGoogleRefreshConcurrency}, Codex={_maxCodexRefreshConcurrency}");
 
         _googleRadar = new GoogleRadarService();
+        _notificationService.OnNotificationTriggered += (title, message) => ShowSystemNotification(title, message);
         InitializeComponent();
         BindingContext = this;
         HandlerChanged += OnHandlerChanged;
@@ -782,8 +788,12 @@ public partial class MainPage : ContentPage
     {
         if (sender is Border border)
         {
-            var tab = border.AutomationId;
-            if (!string.IsNullOrEmpty(tab)) CurrentTab = tab;
+            var id = border.AutomationId;
+            if (!string.IsNullOrEmpty(id))
+            {
+                CurrentTab = id;
+                OnPropertyChanged(nameof(IsNotificationsTab));
+            }
         }
     }
 
@@ -1559,8 +1569,12 @@ public partial class MainPage : ContentPage
 
             var tasks = Accounts.Select(acc => EnqueueRefreshAsync(acc, queueLevel)).ToList();
             await Task.WhenAll(tasks);
+            _codexAccountManager.SortAccounts();
+            _cursorAccountManager.SortAccounts();
+            _accountManager.SortAccounts();
 
             _ = _accountManager.SaveAccountsAsync();
+            _accountManager.SortAccounts();
             UpdateDisplayIndices();
             RebuildGoogleAccountRows();
             NotifyStatsChanged();
@@ -1669,6 +1683,7 @@ public partial class MainPage : ContentPage
                         account.primaryUsedPercent = sessionWindow.UsedPercent;
                         account.primaryWindowLabel = CodexApiService.FormatWindowName(sessionWindow.LimitWindowSeconds);
                         account.primaryResetDescription = CodexApiService.FormatResetTime(sessionWindow.ResetAt);
+                        account.PrimaryResetAt = sessionWindow.ResetAt;
                     }
                     else if (weeklyWindow != null)
                     {
@@ -1676,6 +1691,7 @@ public partial class MainPage : ContentPage
                         account.primaryUsedPercent = weeklyWindow.UsedPercent;
                         account.primaryWindowLabel = CodexApiService.FormatWindowName(weeklyWindow.LimitWindowSeconds);
                         account.primaryResetDescription = CodexApiService.FormatResetTime(weeklyWindow.ResetAt);
+                        account.PrimaryResetAt = weeklyWindow.ResetAt;
                         weeklyWindow = null; // Already shown as primary
                     }
 
@@ -1713,8 +1729,27 @@ public partial class MainPage : ContentPage
                         account.PromoMessage = string.Empty;
                     }
 
+                    // 3. Handle Trial Expiration (Detect if access is revoked via Promo Message)
+                    account.PromoMessage = usage.Promo?.Message ?? "";
+                    if (!string.IsNullOrEmpty(account.PromoMessage) && 
+                        (account.PromoMessage.Contains("To continue using Codex", StringComparison.OrdinalIgnoreCase) ||
+                         account.PromoMessage.Contains("start a free trial of Plus", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        account.IsTrialExpired = true;
+                        // Force usage to 100% if trial is expired
+                        account.primaryUsedPercent = 100;
+                    }
+                    else
+                    {
+                        account.IsTrialExpired = false;
+                    }
+
                     account.last_updated = DateTime.Now;
-                    Log.Info($"Update Completed: {account.name} | Plan: {account.plan_type} | Usage: {account.primaryUsedPercent}% ({account.primaryWindowLabel})");
+                    var resetDate = (usage.RateLimit?.PrimaryWindow?.ResetAt ?? 0);
+                    var resetDateStr = resetDate > 0 ? CodexApiService.FormatResetDate(resetDate) : "—";
+                    Log.Info($"Update Completed: {account.name} | Usage: {account.primaryUsedPercent}% ({account.primaryWindowLabel}) | Reset: {account.primaryResetDescription} ({resetDateStr}) | [Current Local Time: {DateTime.Now:MM/dd HH:mm:ss}]");
+                    
+                    _codexAccountManager.SortAccounts();
                 });
             }
         }
@@ -1769,6 +1804,7 @@ public partial class MainPage : ContentPage
             account.monthly_limit = result.Limit <= 0 ? 500 : result.Limit;
             ApplyCursorContextUsage(account, contextUsage, result.ResetDate);
             account.last_updated = DateTime.Now;
+            _cursorAccountManager.SortAccounts();
         });
     }
 
@@ -1912,6 +1948,7 @@ public partial class MainPage : ContentPage
             IsBusy = true;
             await EnqueueRefreshAsync(account, RefreshQueueLevel.Immediate);
             _ = _accountManager.SaveAccountsAsync();
+            _accountManager.SortAccounts();
             NotifyStatsChanged();
             IsBusy = false;
         }
@@ -1920,6 +1957,7 @@ public partial class MainPage : ContentPage
             IsBusy = true;
             await EnqueueRefreshAsync(cursorAccount, RefreshQueueLevel.Immediate);
             _ = _cursorAccountManager.SaveAccountsAsync();
+            _cursorAccountManager.SortAccounts();
             NotifyStatsChanged();
             IsBusy = false;
         }
@@ -2032,12 +2070,75 @@ public partial class MainPage : ContentPage
         }
     }
 
+    private CancellationTokenSource? _digestDebounceCts;
+
     private void NotifyStatsChanged()
     {
         OnPropertyChanged(nameof(GlobalActions));
         OnPropertyChanged(nameof(GlobalActive));
         OnPropertyChanged(nameof(GlobalLimited));
         OnPropertyChanged(nameof(GlobalQuota));
+
+        // Debounced Slack digest — wait 10s after last update to batch
+        _digestDebounceCts?.Cancel();
+        _digestDebounceCts = new CancellationTokenSource();
+        var token = _digestDebounceCts.Token;
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(10_000, token);
+                await CollectAndSendDigestAsync();
+            }
+            catch (TaskCanceledException) { }
+        }, token);
+    }
+
+    private async Task CollectAndSendDigestAsync()
+    {
+        var entries = new List<AccountDigestEntry>();
+
+        // Codex accounts
+        foreach (var acc in CodexAccounts)
+        {
+            entries.Add(new AccountDigestEntry(
+                Provider: "Codex",
+                AccountName: acc.email ?? "Unknown",
+                UsagePercent: 100 - acc.PrimaryRemainingPercent,
+                IsAvailable: !acc.IsRateLimited && !acc.IsTrialExpired,
+                ResetAt: acc.PrimaryResetAt
+            ));
+        }
+
+        // Cursor accounts
+        foreach (var acc in CursorAccounts)
+        {
+            long cursorResetAt = acc.context_reset_date.HasValue
+                ? new DateTimeOffset(acc.context_reset_date.Value).ToUnixTimeSeconds()
+                : 0;
+            entries.Add(new AccountDigestEntry(
+                Provider: "Cursor",
+                AccountName: acc.email ?? "Unknown",
+                UsagePercent: acc.MonthlyUsedPercent,
+                IsAvailable: acc.context_usage_percent < 99.5,
+                ResetAt: cursorResetAt
+            ));
+        }
+
+        // Google accounts
+        foreach (var quota in GetVisibleGoogleQuotasSnapshot())
+        {
+            entries.Add(new AccountDigestEntry(
+                Provider: "Google",
+                AccountName: quota.display_name ?? "Unknown",
+                UsagePercent: 100 - quota.percentage,
+                IsAvailable: quota.percentage > 0,
+                ResetAt: 0
+            ));
+        }
+
+        await _notificationService.SendAccountDigestAsync(entries);
+        await _notificationService.ScheduleResetAlertsAsync(entries);
     }
 
     private void UpdateDisplayIndices()
@@ -2126,5 +2227,34 @@ public partial class MainPage : ContentPage
     private async void OnOpenGitHubReleasesClicked(object? sender, EventArgs e)
     {
         await Microsoft.Maui.ApplicationModel.Launcher.OpenAsync("https://github.com/wenovaX/AIUsageMonitor/releases");
+    }
+    private void ShowSystemNotification(string title, string message)
+    {
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            TrayIcon.ShowNotification(title, message);
+        });
+    }
+
+    private async void OnSlackTestClicked(object? sender, EventArgs e)
+    {
+        await _notificationService.SendTestAsync();
+    }
+
+    private async void OnOpenSlackApiClicked(object? sender, EventArgs e)
+    {
+        try
+        {
+            await Launcher.Default.OpenAsync(new Uri("https://api.slack.com/apps"));
+        }
+        catch (Exception ex)
+        {
+            Log.Error($"Failed to open Slack API page: {ex.Message}");
+        }
+    }
+
+    private async void OnScheduledTestClicked(object? sender, EventArgs e)
+    {
+        await _notificationService.SendScheduledTestAsync();
     }
 }

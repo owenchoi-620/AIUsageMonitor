@@ -144,6 +144,50 @@ public class CodexAccountManagerService
             Accounts.Add(account);
         }
         _ = SaveAccountsAsync();
+        SortAccounts();
+    }
+
+    public void SortAccounts()
+    {
+        if (Accounts.Count <= 1) return;
+
+        // 1. Get a sorted list
+        var sorted = Accounts.OrderBy(a => GetTierPriority(a.plan_type))
+                            .ThenByDescending(a => a.primaryUsedPercent)
+                            .ThenBy(a => GetResetTimestamp(a))
+                            .ToList();
+
+        // 2. Synchronize ObservableCollection without clearing (to maintain scroll position if possible)
+        for (int i = 0; i < sorted.Count; i++)
+        {
+            var oldIndex = Accounts.IndexOf(sorted[i]);
+            if (oldIndex != i)
+            {
+                Accounts.Move(oldIndex, i);
+            }
+        }
+
+        _ = SaveAccountsAsync();
+    }
+
+    private int GetTierPriority(string? planType)
+    {
+        if (string.IsNullOrEmpty(planType)) return 99;
+        return planType.ToLower() switch
+        {
+            "plus" => 1,
+            "pro" => 1,
+            "team" => 1,
+            "free" => 2,
+            _ => 3
+        };
+    }
+
+    private long GetResetTimestamp(CodexAccount acc)
+    {
+        // Use the stored timestamp. If it's 0 (no limit or not loaded), use a very far future date.
+        if (acc.PrimaryResetAt <= 0) return DateTimeOffset.MaxValue.ToUnixTimeSeconds();
+        return acc.PrimaryResetAt;
     }
 
     public void RemoveAccount(string accountId)

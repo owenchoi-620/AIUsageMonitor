@@ -125,6 +125,38 @@ public class AccountManagerService
             Accounts.Add(account);
         }
         _ = SaveAccountsAsync();
+        SortAccounts();
+    }
+
+    public void SortAccounts()
+    {
+        if (Accounts.Count <= 1) return;
+
+        // Sort by total percentage of visible quotas (descending)
+        var sorted = Accounts.OrderByDescending(GetTotalUsagePercentage).ToList();
+
+        for (int i = 0; i < sorted.Count; i++)
+        {
+            var oldIndex = Accounts.IndexOf(sorted[i]);
+            if (oldIndex != i)
+            {
+                Accounts.Move(oldIndex, i);
+            }
+        }
+
+        _ = SaveAccountsAsync();
+    }
+
+    private double GetTotalUsagePercentage(CloudAccount acc)
+    {
+        if (acc.quotas == null || acc.quotas.Count == 0) return 0;
+
+        var hidden = acc.HiddenModels?.ToHashSet(StringComparer.OrdinalIgnoreCase) ?? new HashSet<string>();
+        
+        // Only sum percentages for models that are NOT hidden
+        return acc.quotas
+            .Where(q => !hidden.Contains(q.display_name))
+            .Sum(q => q.percentage);
     }
 
     public void RemoveAccount(string accountId)

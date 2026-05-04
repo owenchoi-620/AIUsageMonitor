@@ -28,7 +28,14 @@ public class CodexAccount : INotifyPropertyChanged
 	private string _secondaryWindowLabel = "Reset Date";
 	private string _secondaryResetDate = string.Empty;
 	private string _secondaryResetDescription = string.Empty;
+	private bool _isTrialExpired;
 
+	public long PrimaryResetAt { get; set; }
+	public bool IsTrialExpired
+	{
+		get => _isTrialExpired;
+		set { _isTrialExpired = value; OnPropertyChanged(); OnPropertyChanged(nameof(IsRateLimited)); }
+	}
 	public string id { get; set; } = Guid.NewGuid().ToString();
 
 	public string name 
@@ -275,6 +282,8 @@ public class CodexAccount : INotifyPropertyChanged
 	{
 		get
 		{
+			if (IsTrialExpired)
+				return "SUBSCRIPTION REQUIRED";
 			if (IsWeeklyBlocked && IsPrimaryWindowExhausted)
 				return "WEEKLY & 5H BLOCKED";
 			if (IsWeeklyBlocked)
@@ -289,7 +298,7 @@ public class CodexAccount : INotifyPropertyChanged
 	public bool HasUsageLimitBadge => !string.IsNullOrWhiteSpace(UsageLimitBadgeText);
 
 	[JsonIgnore]
-	public bool IsRateLimited => IsWeeklyBlocked || IsPrimaryWindowExhausted;
+	public bool IsRateLimited => IsWeeklyBlocked || IsPrimaryWindowExhausted || IsTrialExpired;
 
 	[JsonIgnore]
 	public string PlanDisplay => string.IsNullOrEmpty(plan_type) ? "—" : 

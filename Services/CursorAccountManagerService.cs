@@ -126,6 +126,27 @@ public class CursorAccountManagerService
         }
 
         _ = SaveAccountsAsync();
+        SortAccounts();
+    }
+
+    public void SortAccounts()
+    {
+        if (Accounts.Count <= 1) return;
+
+        var sorted = Accounts.OrderByDescending(a => a.MonthlyUsedPercent)
+                            .ThenByDescending(a => a.context_usage_percent)
+                            .ToList();
+
+        for (int i = 0; i < sorted.Count; i++)
+        {
+            var oldIndex = Accounts.IndexOf(sorted[i]);
+            if (oldIndex != i)
+            {
+                Accounts.Move(oldIndex, i);
+            }
+        }
+
+        _ = SaveAccountsAsync();
     }
 
     public void RemoveAccount(string accountId)

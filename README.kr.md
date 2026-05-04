@@ -42,7 +42,14 @@ AIUsageMonitor는 여러 AI 계정의 사용량, 제한 상태, 리셋 시점을
 - 화면 공유용 Anonymous 모드
 - Antigravity 모델 목록 수동 관리
 - Cursor 계정 카드 이름 변경 지원
-- Antigravity / Codex / Cursor / Settings / About 탭 구성
+- Antigravity / Codex / Cursor / Notifications / Settings 탭 구성
+
+### 지능형 알림 (Intelligent Notifications)
+- **시스템 트레이 알림**: 계정 리셋이나 사용량 한도 도달 시 즉시 Windows 알림(Toast)을 보냅니다.
+- **Slack 다이제스트 (Webhook)**: 사용 가능한 모든 계정 상태를 요약하여 내 Slack 채널로 즉시 전송합니다.
+- **예약 리셋 알림 (Bot Token)**: 리셋 시각에 맞춰 Slack 서버에 메시지를 예약합니다. **앱이 꺼져 있어도 약속된 시간에 알림을 받을 수 있습니다.**
+- **중복 방지 로직**: 스마트 해싱을 통해 동일한 리셋 주기에 불필요한 중복 알림이 가는 것을 방지합니다.
+- **설정 가이드**: Slack API 연동을 위한 인앱 가이드와 테스트 기능을 제공합니다.
 
 ## Antigravity 모델 목록
 
@@ -104,7 +111,7 @@ AIUsageMonitor는 여러 AI 계정의 사용량, 제한 상태, 리셋 시점을
 
 ## 참고
 
-- 버전: `v1.0.6`
+- 버전: `v1.0.7`
 - Windows tray 동작은 platform controller 계층에서 관리합니다.
 - tray 아이콘은 Windows 호환성을 위해 `trayicon.ico`로 배포합니다.
 
