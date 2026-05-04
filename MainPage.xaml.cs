@@ -182,7 +182,7 @@ public partial class MainPage : ContentPage
         set { _isCodexLoginOverlayVisible = value; OnPropertyChanged(); }
     }
 
-    public const string AppVersion = "1.0.6";
+    public const string AppVersion = "1.0.7";
     public string DisplayVersion => $"v{AppVersion}";
 
     private CancellationTokenSource? _loginCts;
