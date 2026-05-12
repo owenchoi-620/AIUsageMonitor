@@ -831,6 +831,38 @@
 
                     <BoxView HeightRequest="1" BackgroundColor="{StaticResource Slate700}" />
 
+                    <!-- App Behavior -->
+                    <VerticalStackLayout Spacing="15">
+                        <Label Text="APP BEHAVIOR" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource Emerald500}" CharacterSpacing="1" />
+                        
+                        <Border BackgroundColor="{StaticResource Slate800}" StrokeShape="RoundRectangle 10" StrokeThickness="1" Stroke="{StaticResource Slate700}" Padding="20">
+                            <VerticalStackLayout Spacing="18">
+                                <!-- Enable Auto Refresh -->
+                                <Grid ColumnDefinitions="*, Auto">
+                                    <VerticalStackLayout VerticalOptions="Center">
+                                        <Label Text="Background Auto-Refresh" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource Slate50}" />
+                                        <Label Text="Periodically update account data in the background." FontSize="12" TextColor="{StaticResource Slate400}" />
+                                    </VerticalStackLayout>
+                                    <Switch Grid.Column="1" IsToggled="{Binding NotificationSettings.EnableBackgroundRefresh}" OnColor="{StaticResource Emerald500}" VerticalOptions="Center" />
+                                </Grid>
+
+                                <BoxView HeightRequest="1" BackgroundColor="{StaticResource Slate700}" />
+
+                                <!-- Refresh Interval -->
+                                <VerticalStackLayout Spacing="8" IsEnabled="{Binding NotificationSettings.EnableBackgroundRefresh}">
+                                    <Grid ColumnDefinitions="*, Auto">
+                                        <Label Text="Refresh Interval (Minutes)" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Slate400}" />
+                                        <Label Grid.Column="1" Text="{Binding NotificationSettings.RefreshIntervalMinutes, StringFormat='{0} min'}" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Emerald500}" />
+                                    </Grid>
+                                    <Slider Minimum="5" Maximum="120" Value="{Binding NotificationSettings.RefreshIntervalMinutes}" MinimumTrackColor="{StaticResource Emerald500}" />
+                                    <Label Text="Interval between background update cycles. Accounts are updated sequentially to minimize impact." FontSize="11" TextColor="{StaticResource Slate500}" />
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <BoxView HeightRequest="20" Opacity="0" />
+
                     <!-- Antigravity Models -->
                     <VerticalStackLayout Spacing="15">
                         <Label Text="ANTIGRAVITY MODELS" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource Emerald500}" CharacterSpacing="1" />

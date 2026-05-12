@@ -186,6 +186,7 @@ public partial class MainPage : ContentPage
     public string DisplayVersion => $"v{AppVersion}";
 
     private CancellationTokenSource? _loginCts;
+    private CancellationTokenSource? _backgroundRefreshCts;
     private bool _isProcessingCodexLogin;
     private readonly object _refreshSchedulersLock = new();
     private bool _isCursorCredentialLoginWaiting;
@@ -306,6 +307,8 @@ public partial class MainPage : ContentPage
         _ = RefreshAllAccounts(RefreshQueueLevel.Background);
         _ = RefreshAllCursorAccounts(RefreshQueueLevel.Background);
         _ = RefreshAllCodexAccounts(RefreshQueueLevel.Background);
+
+        StartBackgroundRefreshLoop();
     }
 
     public ICommand ShowAppCommand { get; }
@@ -1205,12 +1208,21 @@ public partial class MainPage : ContentPage
     }
 
     // Refresh token if needed (called from scheduler or after 401)
-    private async Task RefreshTokenIfNeededAsync(CodexAccount account)
+    private async Task RefreshTokenIfNeededAsync(CodexAccount account, bool silent = false)
     {
         var accountKey = GetCodexTokenStorageKey(account);
         var (_, refresh, expiresAt) = await _tokenStorage.LoadTokensAsync(accountKey);
         if (string.IsNullOrEmpty(refresh))
         {
+            if (silent)
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    account.HasError = true;
+                    account.LastErrorMessage = "Authentication Expired (No Refresh Token). Please sign in again.";
+                });
+                return;
+            }
             // No refresh token – ask user to re‑login
             await PromptCodexReLoginAsync("Session Expired", "Automatic refresh is unavailable for this login. Please sign in again.");
             return;
@@ -1236,6 +1248,15 @@ public partial class MainPage : ContentPage
             catch (Exception ex)
             {
                 Debug.WriteLine($"[TokenRefresh] Failed for {accountKey}: {ex.Message}");
+                if (silent)
+                {
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        account.HasError = true;
+                        account.LastErrorMessage = $"Authentication Expired. Refresh failed: {ex.Message}";
+                    });
+                    return;
+                }
                 await PromptCodexReLoginAsync("Authentication Expired", "Refresh failed. A fresh web session login will open now.");
             }
         }
@@ -1272,7 +1293,7 @@ public partial class MainPage : ContentPage
                 {
                     await Task.Delay(delay, cts.Token);
                     if (!cts.IsCancellationRequested)
-                        await RefreshTokenIfNeededAsync(account);
+                        await RefreshTokenIfNeededAsync(account, silent: true);
                 }
                 catch (TaskCanceledException)
                 {
@@ -1498,7 +1519,7 @@ public partial class MainPage : ContentPage
                         await _tokenRefreshSemaphore.WaitAsync();
                         try
                         {
-                            await RefreshTokenIfNeededAsync(codexAcc);
+                            await RefreshTokenIfNeededAsync(codexAcc, silent: queueLevel == RefreshQueueLevel.Background);
                         }
                         finally
                         {
@@ -1617,6 +1638,76 @@ public partial class MainPage : ContentPage
         {
             Log.Error("Cursor refresh error", ex);
         }
+    }
+
+    private void StartBackgroundRefreshLoop()
+    {
+        _backgroundRefreshCts?.Cancel();
+        _backgroundRefreshCts = new CancellationTokenSource();
+        var token = _backgroundRefreshCts.Token;
+
+        _ = Task.Run(async () =>
+        {
+            while (!token.IsCancellationRequested)
+            {
+                try
+                {
+                    var interval = NotificationSettings.RefreshIntervalMinutes;
+                    if (interval < 1) interval = 1;
+
+                    await Task.Delay(TimeSpan.FromMinutes(interval), token);
+
+                    if (NotificationSettings.EnableBackgroundRefresh && !_isMinimizedToTray)
+                    {
+                        Log.Info($"[BackgroundRefresh] Starting loose refresh cycle...");
+                        await PerformBackgroundRefreshAsync(token);
+                        Log.Info($"[BackgroundRefresh] Loose refresh cycle completed.");
+                    }
+                }
+                catch (TaskCanceledException)
+                {
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("Background refresh loop error", ex);
+                    await Task.Delay(TimeSpan.FromMinutes(1), token); // Wait before retry
+                }
+            }
+        }, token);
+    }
+
+    private async Task PerformBackgroundRefreshAsync(CancellationToken token)
+    {
+        // Collect accounts that are healthy and not rate limited
+        var googleToRefresh = Accounts.Where(a => !a.HasError && a.quotas.Any(q => q.percentage > 0)).ToList();
+        var codexToRefresh = CodexAccounts.Where(a => !a.HasError && !a.IsRateLimited).ToList();
+        var cursorToRefresh = CursorAccounts.Where(a => !a.HasError && a.context_usage_percent < 99.5).ToList();
+
+        var allToRefresh = new List<object>();
+        allToRefresh.AddRange(googleToRefresh);
+        allToRefresh.AddRange(codexToRefresh);
+        allToRefresh.AddRange(cursorToRefresh);
+
+        // Randomize order a bit to spread the load
+        var rnd = new Random();
+        allToRefresh = allToRefresh.OrderBy(_ => rnd.Next()).ToList();
+
+        foreach (var account in allToRefresh)
+        {
+            if (token.IsCancellationRequested) break;
+
+            // Sequential "loose" refresh: one at a time with a delay
+            await EnqueueRefreshAsync(account, RefreshQueueLevel.Background);
+            
+            // Wait 5-10 seconds between each account to keep it "loose"
+            await Task.Delay(TimeSpan.FromSeconds(rnd.Next(5, 11)), token);
+        }
+
+        // Save after a full cycle
+        _ = _accountManager.SaveAccountsAsync();
+        _ = _codexAccountManager.SaveAccountsAsync();
+        _ = _cursorAccountManager.SaveAccountsAsync();
     }
 
     private async Task RetryAsync(Func<Task> action, int maxRetries, int timeoutSeconds)

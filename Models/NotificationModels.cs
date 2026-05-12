@@ -14,6 +14,21 @@ public class NotificationSettings : INotifyPropertyChanged
     private string _slackStatus = "Ready";
     private Color _slackStatusColor = Color.FromArgb("#64748b"); // Slate 500
 
+    private bool _enableBackgroundRefresh = false;
+    private int _refreshIntervalMinutes = 30;
+
+    public bool EnableBackgroundRefresh
+    {
+        get => _enableBackgroundRefresh;
+        set { _enableBackgroundRefresh = value; OnPropertyChanged(); }
+    }
+
+    public int RefreshIntervalMinutes
+    {
+        get => _refreshIntervalMinutes;
+        set { _refreshIntervalMinutes = value; OnPropertyChanged(); }
+    }
+
     public bool EnableResetNotifications
     {
         get => _enableResetNotifications;
