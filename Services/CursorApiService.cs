@@ -22,6 +22,10 @@ public class CursorApiService
         _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     }
 
+    /// <summary>
+    /// Fetches monthly usage and reset details for a Cursor account using a session token.
+    /// Supports both standard next-auth tokens and WorkOS session tokens.
+    /// </summary>
     public async Task<(string? Email, int Used, int Limit, DateTime? ResetDate)> FetchMonthlyUsageAsync(string sessionToken)
     {
         var normalizedToken = NormalizeSessionToken(sessionToken);
@@ -149,6 +153,9 @@ public class CursorApiService
         return doc.RootElement.TryGetProperty("email", out var emailEl) ? emailEl.GetString() : null;
     }
 
+    /// <summary>
+    /// Fetches monthly usage and retrieves a session token using email/password login credentials.
+    /// </summary>
     public async Task<(string? Email, int Used, int Limit, DateTime? ResetDate, string? SessionToken)> FetchMonthlyUsageWithCredentialsAsync(string email, string password)
     {
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))

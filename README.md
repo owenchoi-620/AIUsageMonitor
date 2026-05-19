@@ -89,31 +89,21 @@ Download the latest build from the Releases page.
 
 ## Antigravity Model List
 
-- The app starts with a default model set and canonical order:
-- `Gemini 3.1 Pro (High)`
-- `Gemini 3.1 Pro (Low)`
-- `Gemini 3 Flash`
-- `Claude Sonnet 4.6 (Thinking)`
-- `Claude Opus 4.6 (Thinking)`
-- `GPT-OSS 120B (Medium)`
-- `Update Model List` scans already-fetched Antigravity quota data and appends newly discovered models.
-- Newly discovered models are added as disabled by default so you can opt in manually.
-- `Set to Default` restores the default list above.
-- Missing discovered models remain visible in Settings as `Missing` instead of being silently removed.
+- Starts with a pre-configured list of default models (Gemini, Claude, GPT, etc.).
+- **Update Model List**: Scans your account's quota data to discover and append new models to the dashboard.
+- **Set to Default**: Resets the active model list back to default presets.
+- Customized and missing models can be enabled, disabled, or configured via the Settings tab.
 
 ## Cursor Monitoring
 
-- The Cursor tab reads the local Cursor database at `%APPDATA%\Cursor\User\globalStorage\state.vscdb`.
-- If Cursor is not installed or not logged in, the app shows a setup guide and a button to open `https://cursor.com/`.
-- Cursor cards show Composer context usage, remaining context, reset date, and bottom-hit status.
-- Context usage keeps the highest recorded usage inside the same reset window so the card does not look falsely recovered before reset.
-- Cursor card names are user-editable because Cursor session data may not expose a reliable email or nickname.
+- Automatically tracks your local Cursor Composer context usage, remaining context, reset dates, and account status.
+- Shows a guided setup instruction if the local Cursor installation or login session is not detected.
+- Allows renaming Cursor card titles in the dashboard for better organization.
 
 ## Notes
 
 - Version: `v1.0.7`
-- Windows tray behavior is handled through the platform controller layer.
-- The tray icon is shipped as `trayicon.ico` for more reliable Windows system tray rendering.
+- Optimized for Windows system tray utility workflows.
 
 ## Privacy
 

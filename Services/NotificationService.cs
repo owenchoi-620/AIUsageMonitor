@@ -23,7 +23,7 @@ public class NotificationService
         Settings.PropertyChanged += (s, e) => SaveSettings();
     }
 
-    public void LoadSettings()
+    private void LoadSettings()
     {
         try
         {
@@ -40,7 +40,7 @@ public class NotificationService
         }
     }
 
-    public void SaveSettings()
+    private void SaveSettings()
     {
         try
         {
@@ -54,7 +54,7 @@ public class NotificationService
     }
 
     /// <summary>
-    /// 특정 계정의 상태 변화를 체크하여 알림이 필요한지 판단합니다.
+    /// Checks the state change of a specific account to determine if a notification should be triggered.
     /// </summary>
     public void CheckAndNotify(string provider, string accountName, int oldUsage, int newUsage, bool isReset = false, long resetAt = 0)
     {
@@ -62,7 +62,7 @@ public class NotificationService
 
         if (isReset && Settings.EnableResetNotifications)
         {
-            // 중복 방지: 동일한 리셋 시간에 대해 이미 알림을 보냈는지 확인
+            // Prevent duplicates: check if we already notified for this reset time
             if (_lastNotifiedResetTimes.TryGetValue(accountKey, out long lastReset) && lastReset == resetAt)
                 return;
 
@@ -88,8 +88,8 @@ public class NotificationService
     }
 
     /// <summary>
-    /// 사용 가능한 계정들을 모아 다이제스트 형태로 Slack에 전송합니다.
-    /// 이전에 보낸 내용과 동일하면 중복 전송하지 않습니다.
+    /// Gathers available accounts and sends them in a digest form to Slack.
+    /// Deduplicates by ignoring consecutive duplicate content.
     /// </summary>
     public async Task SendAccountDigestAsync(List<AccountDigestEntry> entries)
     {
@@ -100,7 +100,7 @@ public class NotificationService
         if (available.Count == 0)
             return;
 
-        // 해시 기반 중복 방지: resetAt 조합이 동일하면 스킵
+        // Hash-based duplicate prevention: skip if resetAt combination is identical
         var digestKey = string.Join("|", available.Select(e => $"{e.Provider}_{e.AccountName}_{e.ResetAt}"));
         var digestHash = digestKey.GetHashCode().ToString();
         if (digestHash == _lastDigestHash)
@@ -122,6 +122,9 @@ public class NotificationService
         await SendSlackMessageAsync("Available Accounts Digest", string.Join("\n", lines));
     }
 
+    /// <summary>
+    /// Sends a test notification to the configured Slack Webhook URL to verify integration.
+    /// </summary>
     public async Task SendTestAsync()
     {
         if (string.IsNullOrWhiteSpace(Settings.SlackWebhookUrl))
@@ -183,8 +186,8 @@ public class NotificationService
     private readonly HashSet<string> _scheduledResetKeys = new();
 
     /// <summary>
-    /// 리셋 시간이 미래인 계정에 대해 Slack 예약 메시지를 등록합니다.
-    /// 이미 동일한 키로 예약한 적 있으면 스킵합니다.
+    /// Registers scheduled Slack reset alerts for accounts whose reset time is in the future.
+    /// Skips if an alert has already been registered with the same signature key.
     /// </summary>
     public async Task ScheduleResetAlertsAsync(List<AccountDigestEntry> entries)
     {
@@ -198,7 +201,7 @@ public class NotificationService
 
         foreach (var entry in entries)
         {
-            // 리셋 시간이 미래이고, 현재 사용 불가한 계정만
+            // Only target accounts where the reset time is in the future and currently unavailable
             if (entry.ResetAt <= now || entry.IsAvailable)
                 continue;
 
@@ -224,6 +227,9 @@ public class NotificationService
         }
     }
 
+    /// <summary>
+    /// Schedules a test message to be sent 1 minute later via the Slack Bot API to verify scheduled alerts.
+    /// </summary>
     public async Task SendScheduledTestAsync()
     {
         if (string.IsNullOrWhiteSpace(Settings.SlackBotToken))
@@ -240,7 +246,7 @@ public class NotificationService
             return;
         }
 
-        // 1분 후 예약 테스트
+        // Schedule test for 1 minute later
         long postAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 60;
         Settings.ScheduledStatus = "Scheduling test (1 min)...";
         Settings.ScheduledStatusColor = Color.FromArgb("#60a5fa");

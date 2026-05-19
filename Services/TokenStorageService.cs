@@ -8,6 +8,9 @@ public class TokenStorageService
     private const string AccessTokenSuffix = "_access_token";
     private const string RefreshTokenSuffix = "_refresh_token";
 
+    /// <summary>
+    /// Saves the access and refresh tokens for a specific account without expiration information.
+    /// </summary>
     public async Task SaveTokensAsync(string accountId, string? accessToken, string? refreshToken)
     {
         // Backward‑compatible overload – just stores tokens without expiration info
@@ -15,6 +18,9 @@ public class TokenStorageService
     }
 
     // New overload that also stores the token expiration timestamp (UTC)
+    /// <summary>
+    /// Saves the access and refresh tokens along with an optional token expiration duration in seconds.
+    /// </summary>
     public async Task SaveTokensAsync(string accountId, string? accessToken, string? refreshToken, int? expiresInSeconds)
     {
         try
@@ -55,6 +61,9 @@ public class TokenStorageService
     }
 
     // Returns (access, refresh, expiresAt) – expiresAt may be null if not stored
+    /// <summary>
+    /// Loads the access and refresh tokens, as well as the expiration time, for a specific account.
+    /// </summary>
     public async Task<(string? AccessToken, string? RefreshToken, DateTime? ExpiresAt)> LoadTokensAsync(string accountId)
     {
         try
@@ -74,6 +83,9 @@ public class TokenStorageService
         }
     }
 
+    /// <summary>
+    /// Removes all stored tokens for a specific account.
+    /// </summary>
     public void RemoveTokens(string accountId)
     {
         try

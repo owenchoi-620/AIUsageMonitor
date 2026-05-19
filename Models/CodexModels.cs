@@ -26,7 +26,6 @@ public class CodexAccount : INotifyPropertyChanged
 	// Secondary window (longer cycle — often shows a reset date, not a gauge)
 	private int _secondaryUsedPercent;
 	private string _secondaryWindowLabel = "Reset Date";
-	private string _secondaryResetDate = string.Empty;
 	private string _secondaryResetDescription = string.Empty;
 	private bool _isTrialExpired;
 
@@ -156,17 +155,6 @@ public class CodexAccount : INotifyPropertyChanged
 			OnPropertyChanged(nameof(SecondaryStatusText));
 			OnPropertyChanged(nameof(HasSecondaryWindow));
 			OnPropertyChanged(nameof(SecondaryRemainingPercent));
-		}
-	}
-
-	public string secondaryResetDate 
-	{ 
-		get => _secondaryResetDate; 
-		set
-		{
-			_secondaryResetDate = value;
-			OnPropertyChanged();
-			OnPropertyChanged(nameof(PrimaryStatusText));
 		}
 	}
 

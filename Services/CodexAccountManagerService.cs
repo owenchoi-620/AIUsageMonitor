@@ -19,6 +19,9 @@ public class CodexAccountManagerService
         _tokenStorage = MauiProgram.Services.GetRequiredService<TokenStorageService>();
     }
 
+    /// <summary>
+    /// Loads stored OpenAI/Codex accounts from file and migrates tokens to SecureStorage if necessary.
+    /// </summary>
     public async Task LoadAccountsAsync()
     {
         if (!File.Exists(_filePath)) return;
@@ -76,6 +79,9 @@ public class CodexAccountManagerService
         }
     }
 
+    /// <summary>
+    /// Saves all current OpenAI/Codex accounts to local storage and updates secure token storage.
+    /// </summary>
     public async Task SaveAccountsAsync()
     {
         await _saveSemaphore.WaitAsync();
@@ -110,6 +116,9 @@ public class CodexAccountManagerService
         }
     }
 
+    /// <summary>
+    /// Adds a new OpenAI/Codex account or updates an existing one based on email matching.
+    /// </summary>
     public void AddOrUpdateAccount(CodexAccount account)
     {
         var existing = Accounts.FirstOrDefault(a => a.id == account.id || (!string.IsNullOrEmpty(a.access_token) && a.access_token == account.access_token));
@@ -130,7 +139,6 @@ public class CodexAccountManagerService
             existing.secondaryWindowLabel = 
                 string.IsNullOrWhiteSpace(account.secondaryWindowLabel) ? 
                 string.Empty : $"{account.secondaryWindowLabel} ";
-            existing.secondaryResetDate = account.secondaryResetDate;
             if (!string.IsNullOrEmpty(account.refresh_token))
                 existing.refresh_token = account.refresh_token;
             if (!string.IsNullOrEmpty(account.login_method))
@@ -147,6 +155,9 @@ public class CodexAccountManagerService
         SortAccounts();
     }
 
+    /// <summary>
+    /// Sorts OpenAI/Codex accounts by plan priority, usage percentage, and reset time.
+    /// </summary>
     public void SortAccounts()
     {
         if (Accounts.Count <= 1) return;
@@ -190,6 +201,9 @@ public class CodexAccountManagerService
         return acc.PrimaryResetAt;
     }
 
+    /// <summary>
+    /// Removes a specific OpenAI/Codex account from local storage and deletes its secure tokens.
+    /// </summary>
     public void RemoveAccount(string accountId)
     {
         var acc = Accounts.FirstOrDefault(a => a.id == accountId);
@@ -201,6 +215,9 @@ public class CodexAccountManagerService
         }
     }
 
+    /// <summary>
+    /// Exports all OpenAI/Codex accounts to a JSON file at the specified path.
+    /// </summary>
     public async Task ExportAccountsAsync(string targetPath)
     {
         try
@@ -215,6 +232,9 @@ public class CodexAccountManagerService
         }
     }
 
+    /// <summary>
+    /// Imports OpenAI/Codex accounts from a JSON file at the specified path.
+    /// </summary>
     public async Task ImportAccountsAsync(string sourcePath)
     {
         try

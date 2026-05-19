@@ -55,7 +55,6 @@ public class CloudAccount : INotifyPropertyChanged
     
     [JsonIgnore]
     public string? refresh_token { get; set; }
-    public DateTime? expires_at { get; set; }
     public DateTime? last_updated { get; set; }
 
     public double credits 

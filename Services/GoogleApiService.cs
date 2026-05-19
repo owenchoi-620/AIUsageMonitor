@@ -40,6 +40,9 @@ public class GoogleApiService
         _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgent);
     }
 
+    /// <summary>
+    /// Generates the Google OAuth 2.0 authorization URL using predefined scopes.
+    /// </summary>
     public string GetAuthUrl(string redirectUri)
     {
         var scopes = new[]
@@ -61,6 +64,9 @@ public class GoogleApiService
                $"include_granted_scopes=true";
     }
 
+    /// <summary>
+    /// Exchanges the OAuth authorization code for Google access and refresh tokens.
+    /// </summary>
     public async Task<TokenResponse> ExchangeCodeAsync(string code, string redirectUri)
     {
         var content = new FormUrlEncodedContent(new[]
@@ -77,6 +83,9 @@ public class GoogleApiService
         return await response.Content.ReadFromJsonAsync<TokenResponse>() ?? throw new Exception("Failed to parse token response");
     }
 
+    /// <summary>
+    /// Refreshes the Google access token using the stored refresh token.
+    /// </summary>
     public async Task<TokenResponse> RefreshTokenAsync(string refreshToken)
     {
         var content = new FormUrlEncodedContent(new[]
@@ -92,6 +101,9 @@ public class GoogleApiService
         return await response.Content.ReadFromJsonAsync<TokenResponse>() ?? throw new Exception("Failed to parse token response");
     }
 
+    /// <summary>
+    /// Fetches the user profile information from Google OAuth userinfo endpoint.
+    /// </summary>
     public async Task<UserInfo> GetUserInfoAsync(string accessToken)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, UserInfoUrl);
@@ -102,7 +114,7 @@ public class GoogleApiService
         return await response.Content.ReadFromJsonAsync<UserInfo>() ?? throw new Exception("Failed to parse user info");
     }
 
-    public async Task<(string? projectId, string? tier)> FetchProjectContextAsync(string accessToken)
+    private async Task<(string? projectId, string? tier)> FetchProjectContextAsync(string accessToken)
     {
         try
         {
@@ -134,6 +146,9 @@ public class GoogleApiService
         }
     }
 
+    /// <summary>
+    /// Fetches remaining Google Cloud Credits (if applicable) for the active account.
+    /// </summary>
     public async Task<double> FetchCreditsAsync(string accessToken)
     {
         try
@@ -162,6 +177,9 @@ public class GoogleApiService
         }
     }
 
+    /// <summary>
+    /// Fetches Gemini and Google Cloud Code quota usage and limits for the available models.
+    /// </summary>
     public async Task<QuotaData> FetchQuotaAsync(string accessToken)
     {
         var (projectId, tier) = await FetchProjectContextAsync(accessToken);

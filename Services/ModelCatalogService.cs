@@ -42,6 +42,9 @@ public class ModelCatalogService
         Load();
     }
 
+    /// <summary>
+    /// Checks if a model with the specified display name is currently enabled in the catalog.
+    /// </summary>
     public bool IsEnabled(string? displayName)
     {
         if (string.IsNullOrWhiteSpace(displayName))
@@ -53,6 +56,9 @@ public class ModelCatalogService
         return match?.Enabled ?? false;
     }
 
+    /// <summary>
+    /// Gets the sort order index for a model by its display name.
+    /// </summary>
     public int GetSortOrder(string? displayName)
     {
         if (string.IsNullOrWhiteSpace(displayName))
@@ -65,45 +71,11 @@ public class ModelCatalogService
         return index?.Index ?? int.MaxValue;
     }
 
-    public bool MergeDiscoveredModels(IEnumerable<string> displayNames)
-    {
-        var discoveredNames = displayNames
-            .Where(name => !string.IsNullOrWhiteSpace(name))
-            .Select(name => name.Trim())
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
 
-        if (discoveredNames.Count == 0)
-            return false;
-
-        var updated = Models
-            .Select(Clone)
-            .ToList();
-
-        var existingNames = updated
-            .Select(model => model.DisplayName)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        foreach (var name in discoveredNames)
-        {
-            if (existingNames.Add(name))
-            {
-                updated.Add(new DiscoveredModelEntry
-                {
-                    DisplayName = name,
-                    Enabled = true
-                });
-            }
-        }
-
-        updated = OrderModels(updated).ToList();
-        if (HasSameModelState(updated))
-            return false;
-
-        ApplyModels(updated);
-        return true;
-    }
-
+    /// <summary>
+    /// Dynamically updates the catalog with newly discovered model names.
+    /// Returns true if the collection state changed; otherwise, false.
+    /// </summary>
     public bool UpdateAvailableModels(IEnumerable<string> displayNames)
     {
         var discoveredNames = displayNames
@@ -157,6 +129,9 @@ public class ModelCatalogService
         return true;
     }
 
+    /// <summary>
+    /// Resets the model catalog collection and order to their default states.
+    /// </summary>
     public void ResetToDefaults()
     {
         var defaults = DefaultDisplayOrder.Select(name => new DiscoveredModelEntry
@@ -172,11 +147,17 @@ public class ModelCatalogService
         ApplyModels(defaults);
     }
 
+    /// <summary>
+    /// Suspends triggering CatalogChanged notifications until ResumeCatalogChangedNotifications is called.
+    /// </summary>
     public void SuspendCatalogChangedNotifications()
     {
         _suspendCatalogChanged = true;
     }
 
+    /// <summary>
+    /// Resumes triggering CatalogChanged notifications and processes any pending deferred notification.
+    /// </summary>
     public void ResumeCatalogChangedNotifications()
     {
         _suspendCatalogChanged = false;

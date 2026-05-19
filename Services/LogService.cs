@@ -24,11 +24,4 @@ public static class Log
         Debug.WriteLine($"[{tag}][ERROR] {message}{exMsg}");
     }
 
-    /// <summary>
-    /// 특정 태그를 직접 지정하여 로그를 남깁니다.
-    /// </summary>
-    public static void Write(string tag, string message)
-    {
-        Debug.WriteLine($"[{tag}] {message}");
-    }
 }

@@ -20,6 +20,9 @@ public class CursorAccountManagerService
         _filePath = Path.Combine(FileSystem.AppDataDirectory, FileName);
     }
 
+    /// <summary>
+    /// Loads stored Cursor accounts from file and decrypts sensitive token/password fields.
+    /// </summary>
     public async Task LoadAccountsAsync()
     {
         if (!File.Exists(_filePath))
@@ -59,6 +62,9 @@ public class CursorAccountManagerService
         }
     }
 
+    /// <summary>
+    /// Saves all current Cursor accounts to local storage, encrypting sensitive fields before serialization.
+    /// </summary>
     public async Task SaveAccountsAsync()
     {
         await _saveSemaphore.WaitAsync();
@@ -94,6 +100,9 @@ public class CursorAccountManagerService
         }
     }
 
+    /// <summary>
+    /// Adds a new Cursor account or updates an existing one based on ID, token, or email match.
+    /// </summary>
     public void AddOrUpdateAccount(CursorAccount account)
     {
         var existing = Accounts.FirstOrDefault(a =>
@@ -129,6 +138,9 @@ public class CursorAccountManagerService
         SortAccounts();
     }
 
+    /// <summary>
+    /// Sorts Cursor accounts by their monthly usage and composer context percentages.
+    /// </summary>
     public void SortAccounts()
     {
         if (Accounts.Count <= 1) return;
@@ -149,6 +161,9 @@ public class CursorAccountManagerService
         _ = SaveAccountsAsync();
     }
 
+    /// <summary>
+    /// Removes a specific Cursor account from local storage.
+    /// </summary>
     public void RemoveAccount(string accountId)
     {
         var account = Accounts.FirstOrDefault(a => a.id == accountId);

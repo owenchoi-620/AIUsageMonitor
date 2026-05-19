@@ -1119,14 +1119,6 @@ public partial class MainPage : ContentPage
     private static string GetCodexTokenStorageKey(CodexAccount account) =>
         string.IsNullOrWhiteSpace(account.account_id) ? account.id : account.account_id;
 
-    private Task PromptCodexReLoginAsync(string title, string message)
-    {
-        return MainThread.InvokeOnMainThreadAsync(async () =>
-        {
-            await DisplayAlertAsync(title, message, "OK");
-            StartCodexWebViewLogin(clearSession: true);
-        });
-    }
 
     private async Task LoginViaOpenAIFlow()
     {
@@ -1214,17 +1206,11 @@ public partial class MainPage : ContentPage
         var (_, refresh, expiresAt) = await _tokenStorage.LoadTokensAsync(accountKey);
         if (string.IsNullOrEmpty(refresh))
         {
-            if (silent)
+            MainThread.BeginInvokeOnMainThread(() =>
             {
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    account.HasError = true;
-                    account.LastErrorMessage = "Authentication Expired (No Refresh Token). Please sign in again.";
-                });
-                return;
-            }
-            // No refresh token – ask user to re‑login
-            await PromptCodexReLoginAsync("Session Expired", "Automatic refresh is unavailable for this login. Please sign in again.");
+                account.HasError = true;
+                account.LastErrorMessage = "Authentication Expired (No Refresh Token). Please sign in again.";
+            });
             return;
         }
 
@@ -1248,16 +1234,11 @@ public partial class MainPage : ContentPage
             catch (Exception ex)
             {
                 Debug.WriteLine($"[TokenRefresh] Failed for {accountKey}: {ex.Message}");
-                if (silent)
+                MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    MainThread.BeginInvokeOnMainThread(() =>
-                    {
-                        account.HasError = true;
-                        account.LastErrorMessage = $"Authentication Expired. Refresh failed: {ex.Message}";
-                    });
-                    return;
-                }
-                await PromptCodexReLoginAsync("Authentication Expired", "Refresh failed. A fresh web session login will open now.");
+                    account.HasError = true;
+                    account.LastErrorMessage = $"Authentication Expired. Refresh failed: {ex.Message}";
+                });
             }
         }
     }
@@ -1790,7 +1771,6 @@ public partial class MainPage : ContentPage
                     if (weeklyWindow != null)
                     {
                         account.secondaryUsedPercent = weeklyWindow.UsedPercent;
-                        account.secondaryResetDate = CodexApiService.FormatResetDate(weeklyWindow.ResetAt);
                         account.secondaryResetDescription = CodexApiService.FormatResetTime(weeklyWindow.ResetAt);
 
                         var secondaryText = CodexApiService.FormatWindowName(weeklyWindow.LimitWindowSeconds);
@@ -1799,7 +1779,6 @@ public partial class MainPage : ContentPage
                     else
                     {
                         account.secondaryWindowLabel = string.Empty;
-                        account.secondaryResetDate = string.Empty;
                         account.secondaryResetDescription = string.Empty;
                     }
 

@@ -19,6 +19,9 @@ public class AccountManagerService
         _tokenStorage = MauiProgram.Services.GetRequiredService<TokenStorageService>();
     }
 
+    /// <summary>
+    /// Loads stored Google/Gemini accounts from file and migrates tokens to SecureStorage if necessary.
+    /// </summary>
     public async Task LoadAccountsAsync()
     {
         if (!File.Exists(_filePath)) return;
@@ -80,6 +83,9 @@ public class AccountManagerService
         }
     }
 
+    /// <summary>
+    /// Saves all current Google/Gemini accounts to local storage and updates secure token storage.
+    /// </summary>
     public async Task SaveAccountsAsync()
     {
         await _saveSemaphore.WaitAsync();
@@ -104,6 +110,9 @@ public class AccountManagerService
         }
     }
 
+    /// <summary>
+    /// Adds a new Google/Gemini account or updates an existing one based on email matching.
+    /// </summary>
     public void AddOrUpdateAccount(CloudAccount account)
     {
         if (string.IsNullOrEmpty(account.email)) return;
@@ -128,6 +137,9 @@ public class AccountManagerService
         SortAccounts();
     }
 
+    /// <summary>
+    /// Sorts Google/Gemini accounts by their non-hidden model usage percentages in descending order.
+    /// </summary>
     public void SortAccounts()
     {
         if (Accounts.Count <= 1) return;
@@ -159,6 +171,9 @@ public class AccountManagerService
             .Sum(q => q.percentage);
     }
 
+    /// <summary>
+    /// Removes a specific Google/Gemini account from local storage and deletes its secure tokens.
+    /// </summary>
     public void RemoveAccount(string accountId)
     {
         var acc = Accounts.FirstOrDefault(a => a.id == accountId);
@@ -170,6 +185,9 @@ public class AccountManagerService
         }
     }
 
+    /// <summary>
+    /// Exports all Google/Gemini accounts to a JSON file at the specified path.
+    /// </summary>
     public async Task ExportAccountsAsync(string targetPath)
     {
         try
@@ -184,6 +202,9 @@ public class AccountManagerService
         }
     }
 
+    /// <summary>
+    /// Imports Google/Gemini accounts from a JSON file at the specified path.
+    /// </summary>
     public async Task ImportAccountsAsync(string sourcePath)
     {
         try

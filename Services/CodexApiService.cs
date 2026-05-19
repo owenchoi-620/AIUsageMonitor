@@ -86,6 +86,9 @@ public class CodexApiService
 		public string Picture { get; set; } = "";
 	}
 
+	/// <summary>
+	/// Fetches ChatGPT usage statistics from the OpenAI backend API.
+	/// </summary>
 	public async Task<CodexUsageResponse?> FetchUsageAsync(string accessToken, string? accountId = null)
 	{
 		var request = new HttpRequestMessage(HttpMethod.Get, UsageEndpoint);
@@ -111,7 +114,7 @@ public class CodexApiService
 			if (!response.IsSuccessStatusCode)
 				throw new Exception($"Usage API error ({response.StatusCode}): {json}");
 
-            // JSON이 너무 길면 잘라서라도 출력
+            // Truncate raw JSON if it is too long for logging
             string logJson = json.Length > 1000 ? json.Substring(0, 1000) + "...[TRUNCATED]" : json;
 			Log.Info($"[RAW JSON] {logJson}");
             
@@ -124,6 +127,9 @@ public class CodexApiService
 		}
 	}
 
+	/// <summary>
+	/// Fetches ChatGPT user profile information from the OpenAI backend API.
+	/// </summary>
 	public async Task<UserInfoResponse?> FetchUserInfoAsync(string accessToken)
 	{
 		var request = new HttpRequestMessage(HttpMethod.Get, UserInfoEndpoint);
@@ -142,6 +148,9 @@ public class CodexApiService
 		return JsonSerializer.Deserialize<UserInfoResponse>(json);
 	}
 
+	/// <summary>
+	/// Formats the remaining reset time into a human-readable duration string (e.g., "now", "45m", "2h 15m").
+	/// </summary>
 	public static string FormatResetTime(long unixTimestamp)
 	{
 		var resetTime = DateTimeOffset.FromUnixTimeSeconds(unixTimestamp).LocalDateTime;
@@ -153,6 +162,9 @@ public class CodexApiService
 		return $"{(int)remaining.TotalDays}d {remaining.Hours}h";
 	}
 
+	/// <summary>
+	/// Formats a time window duration in seconds into a friendly name (e.g., "Weekly", "3d", "4h").
+	/// </summary>
 	public static string FormatWindowName(int windowSeconds)
 	{
 		var hours = windowSeconds / 3600;
@@ -161,6 +173,9 @@ public class CodexApiService
 		return $"{hours}h";
 	}
 
+	/// <summary>
+	/// Formats the Unix timestamp of reset time into a specific date-time representation (MM/dd HH:mm).
+	/// </summary>
 	public static string FormatResetDate(long unixTimestamp)
 	{
 		if (unixTimestamp == 0) return "—";
@@ -169,6 +184,9 @@ public class CodexApiService
 	}
 
 	// Parse OpenAI JWT id_token to extract user info (name, email)
+	/// <summary>
+	/// Decodes and parses the payload of a JWT ID token to extract user profile details.
+	/// </summary>
 	public static UserInfoResponse? ParseIdToken(string idToken)
 	{
 		if (string.IsNullOrEmpty(idToken)) return null;
